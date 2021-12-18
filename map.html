@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Twitter Trends Map App</title>
+    </head>
+    <body>
+        <main>
+            <form>
+                <label for="location">Please Enter Location</label>
+                <input type="text" name="location" id="location" />
+                <button type="submit">Search</button>
+            </form>
+
+            <div id="map" style="height: 500px;"></div>
+
+            <a id="share-btn" target="_blank" href="https://www.facebook.com/dialog/share?app_id=393847578197746&display=popup&href=http%3A%2F%2F127.0.0.1%2F">Share With Facebook</button>
+        </main>
+    </body>
+
+    <script>
+        let map, marker;
+
+        function myMap() {
+            const props = {
+                center: new google.maps.LatLng(0, 0),
+                zoom: 5,
+            };
+
+            map = new google.maps.Map(document.getElementById("map"), props);
+        }
+
+        document.forms[0].onsubmit = async function (e) {
+            e.preventDefault();
+
+            const locationValue = document.forms[0].location.value;
+            const woeid = await (await fetch(
+                "http://twitterapi.pharma.com.sd/?country=" + locationValue
+            )).json();
+
+            const trends = await (
+                await fetch("http://twitterapi.pharma.com.sd/?woeid=" + woeid)
+            ).json();
+
+            const { location } = await (await fetch(
+                "https://api.weatherapi.com/v1/current.json?key=8f7309e774b84bc79d3135126211612&q=" + locationValue
+            )).json();
+
+            let trendsLabel = "";
+            let counter = 1;
+            for (let trend of trends) {
+                trendsLabel += `(${counter++}) ` + trend.name + " | ";
+            }
+            var infowindow = new google.maps.InfoWindow({
+                content: trendsLabel,
+            });
+
+            const marker = new google.maps.Marker({
+                position: {
+                    lat: location.lat,
+                    lng: location.lon
+                },
+                map,
+            });
+
+            marker.setMap(map);
+
+            map.setCenter({
+                    lat: location.lat,
+                    lng: location.lon
+            });
+
+            infowindow.open(map, marker);
+
+            google.maps.event.addListener(marker, "click", function (event) {
+                infowindow.open(map, marker);
+            });
+    
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAnn3NbbCpXNdOS313q5Ic2oOfP-69pus&callback=myMap"></script>
+</html>

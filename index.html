@@ -37,11 +37,11 @@
 
             const locationValue = document.forms[0].location.value;
             const woeid = await (await fetch(
-                "http://twitterapi.pharma.com.sd/?country=" + locationValue
+                "https://twitterapi.pharma.com.sd/?country=" + locationValue
             )).json();
 
             const trends = await (
-                await fetch("http://twitterapi.pharma.com.sd/?woeid=" + woeid)
+                await fetch("https://twitterapi.pharma.com.sd/?woeid=" + woeid)
             ).json();
 
             const { location } = await (await fetch(
